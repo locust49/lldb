@@ -1,0 +1,48 @@
+import lldb
+import time
+
+def	auto_launch(debugger, command, result, internal_dict):
+	debugger.SetAsync(True)
+	argv = command.split()
+	if len(argv) == 3:
+		debugger.HandleCommand("breakpoint set -n main")
+		debugger.HandleCommand("run")
+		time.sleep(1)
+		debugger.HandleCommand("watchpoint set variable count")
+		debugger.HandleCommand("c")
+		time.sleep(1)
+		debugger.HandleCommand("c")
+		time.sleep(1)
+		debugger.GetSelectedTarget().GetProcess().PutSTDIN(str(argv[0] + "\n"))
+		time.sleep(1)
+		debugger.HandleCommand("e tab[0] = tab[1]")
+		debugger.HandleCommand("c")
+		time.sleep(1)
+		debugger.GetSelectedTarget().GetProcess().PutSTDIN(str(argv[1] + "\n"))
+		time.sleep(1)
+		debugger.HandleCommand("e int $tmp = tab[1]")
+		debugger.HandleCommand("c")
+		time.sleep(1)
+		debugger.GetSelectedTarget().GetProcess().PutSTDIN(str(argv[2] + "\n"))
+		time.sleep(1)
+		debugger.HandleCommand("e tab[2] = tab[1]; tab[1] = $tmp")
+		debugger.HandleCommand("c")
+		time.sleep(1)
+		debugger.HandleCommand("e count = 0")
+		debugger.HandleCommand("watchpoint del 1")
+		time.sleep(1)
+		debugger.HandleCommand("breakpoint set -p 'tmp /= max'")
+		debugger.HandleCommand("c")
+		time.sleep(1)
+		debugger.HandleCommand("e for(int i = 0; i < max; i++) tmp += min[i]")
+		debugger.HandleCommand("breakpoint set -p 'return biggest'")
+		debugger.HandleCommand("c")
+		time.sleep(1)
+		debugger.HandleCommand("e for(int i = 0; i < max; i++) if(biggest < min[i]) biggest = min[i]")
+		debugger.HandleCommand("c")
+		time.sleep(2)
+	else:
+		print('usage:\n\tauto_launch number1 number2 number3')
+
+def	__lldb_init_module(debugger, internal_dict):
+	debugger.HandleCommand('command script add -f launch_commandes.auto_launch launch_commandes -h "launch_commandes source file"')
