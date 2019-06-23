@@ -1,0 +1,17 @@
+c
+c
+e tab[0] = tab[1]
+c
+e int $tmp = tab[1]
+c
+e tab[2] = tab[1]; tab[1] = $tmp
+c
+e count = 0
+watchpoint del 1
+breakpoint set -p "tmp /= max"
+c
+e for (int i = 0; i < max; i++) tmp += min[i];
+breakpoint set -p "return biggest"
+c
+e for (int i = 1; i < max; i++) if (biggest <= min[i]) biggest = min[i];
+c
